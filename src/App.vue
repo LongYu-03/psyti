@@ -117,11 +117,32 @@ const handleSelect = (score) => {
     </div>
   </div>
 
-  <div class="result-desc">
-    <h3>{{ resultDescriptions[finalType]?.title || '未定义的类型' }}</h3>
-    <p>{{ resultDescriptions[finalType]?.desc || '描述信息补全中...' }}</p>
+  <div class="result-container">
+    <div class="main-result">
+      <p class="type-tag">{{ currentResultData.dimension }}</p>
+      <h1>{{ currentResultData.title }}</h1>
+      <p class="main-desc">{{ currentResultData.desc }}</p>
+    </div>
+
+    <div class="mentor-box" v-if="currentResultData.mentorSection">
+      <p class="mentor-intro">{{ currentResultData.mentorSection.intro }}</p>
+      
+      <div v-for="item in currentResultData.mentorSection.mentors" :key="item.name" class="mentor-card">
+        <div class="card-header">
+          <span class="mentor-name">{{ item.name }}</span>
+          <span class="mentor-identity">{{ item.identity }}</span>
+        </div>
+        <p class="mentor-achieve"><strong>核心视角：</strong>{{ item.achievement }}</p>
+        <div class="mentor-quote-box">
+          <span class="quote-mark">"</span>
+          <p class="quote-text">{{ item.quote }}</p>
+          <span class="quote-mark" style="text-align: right">"</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="retry-btn" @click="gameState = 'welcome'">返回主页</button>
   </div>
-  <button class="retry-btn" @click="gameState = 'welcome'">返回主页</button>
 </div>
 
   </div>
@@ -214,6 +235,64 @@ const handleSelect = (score) => {
   font-size: 0.8rem;
   color: #888;
   margin-top: 4px;
+}
+
+/* 导师区域容器 */
+.mentor-box {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fcfaf2; /* 类似旧纸张的象牙色 */
+  border-radius: 12px;
+  border: 1px solid #e0d8c3;
+}
+
+.mentor-intro {
+  font-size: 0.9rem;
+  color: #8c7e6a;
+  margin-bottom: 15px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 导师卡片 */
+.mentor-card {
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #d1c7ad;
+  padding-bottom: 15px;
+}
+
+.mentor-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.mentor-identity {
+  font-size: 0.8rem;
+  background: #eee;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border-radius: 4px;
+}
+
+.mentor-achieve {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
+  margin: 10px 0;
+}
+
+/* 名言样式 */
+.mentor-quote-box {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  border-left: 3px solid #8c7e6a;
+}
+
+.quote-text {
+  font-family: "KaiTi", "STKaiti", serif; /* 尽量使用衬线体，显得有底蕴 */
+  font-style: italic;
+  color: #444;
 }
 
 </style>
