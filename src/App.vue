@@ -1,13 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
+// 核心修复 1：确保导入的名称和 questions.js 中导出的一致
 import { questions, resultDescriptions } from './questions'
 
-// --- 1. 状态管理 ---
 const gameState = ref('welcome') 
 const currentIndex = ref(0)
 const userAnswers = ref([])
 
-// --- 2. 核心分数累加 (中间变量) ---
 const totalScores = computed(() => {
   let scores = { DF: 0, KA: 0, EG: 0, SB: 0 }
   userAnswers.value.forEach((ans) => {
@@ -18,38 +17,46 @@ const totalScores = computed(() => {
   return scores
 })
 
-// --- 3. 生成 4 位代号 (用于匹配文案) ---
+// 核心修复 2：调整字母拼接顺序，使其严格匹配 questions.js 里的 Key (D/F -> E/G -> K/A -> S/B)
 const finalType = computed(() => {
   const s = totalScores.value
-  // 根据分数的正负决定字母，顺序严格按照你的矩阵：DF-KA-EG-SB
   const res = [
     s.DF >= 0 ? 'D' : 'F',
-    s.KA >= 0 ? 'K' : 'A',
-    s.EG >= 0 ? 'E' : 'G',
+    s.EG >= 0 ? 'E' : 'G', // 你的数据文件里第二位是元素/格式塔
+    s.KA >= 0 ? 'K' : 'A', // 第三位是可知/不可知
     s.SB >= 0 ? 'S' : 'B'
   ]
   return res.join('')
 })
 
-// --- 4. 维度分析 (用于进度条显示) ---
+// 核心修复 3：补全 currentResultData 计算属性，让模板能抓到文案
+const currentResultData = computed(() => {
+  const code = finalType.value
+  // 从导入的 resultDescriptions 中查找，如果没找到则返回默认值防止报错
+  return resultDescriptions[code] || { 
+    title: "探索中...", 
+    dimension: "未知维度", 
+    desc: "描述信息加载中，请检查代号匹配。",
+    mentorSection: null 
+  }
+})
+
+// --- 其余逻辑保持不变 ---
 const dimensionAnalysis = computed(() => {
   const s = totalScores.value
-  
   const calculatePercent = (val) => {
     const maxScore = 16 
     let percent = ((val + maxScore) / (maxScore * 2)) * 100
     return Math.max(0, Math.min(100, Number(percent).toFixed(1))) 
   }
-
   return [
     { label: '决定论 vs 自由意志', percent: calculatePercent(s.DF), left: 'D', right: 'F' },
-    { label: '可知论 vs 不可知论', percent: calculatePercent(s.KA), left: 'K', right: 'A' },
     { label: '元素论 vs 格式塔', percent: calculatePercent(s.EG), left: 'E', right: 'G' },
+    { label: '可知论 vs 不可知论', percent: calculatePercent(s.KA), left: 'K', right: 'A' },
     { label: '灵魂 vs 肉体', percent: calculatePercent(s.SB), left: 'S', right: 'B' }
   ]
 })
 
-// --- 5. 动作函数 ---
 const startQuiz = () => {
   gameState.value = 'quiz'
   currentIndex.value = 0
@@ -61,7 +68,6 @@ const handleSelect = (score) => {
     dim: questions[currentIndex.value].dimension,
     score: score
   })
-
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
@@ -125,21 +131,21 @@ const handleSelect = (score) => {
     </div>
 
     <div class="mentor-box" v-if="currentResultData.mentorSection">
-      <p class="mentor-intro">{{ currentResultData.mentorSection.intro }}</p>
-      
-      <div v-for="item in currentResultData.mentorSection.mentors" :key="item.name" class="mentor-card">
-        <div class="card-header">
-          <span class="mentor-name">{{ item.name }}</span>
-          <span class="mentor-identity">{{ item.identity }}</span>
-        </div>
-        <p class="mentor-achieve"><strong>核心视角：</strong>{{ item.achievement }}</p>
-        <div class="mentor-quote-box">
-          <span class="quote-mark">"</span>
-          <p class="quote-text">{{ item.quote }}</p>
-          <span class="quote-mark" style="text-align: right">"</span>
-        </div>
-      </div>
+  <p class="mentor-intro">{{ currentResultData.mentorSection.intro }}</p>
+  
+  <div v-for="item in currentResultData.mentorSection.mentors" :key="item.name" class="mentor-card">
+    <div class="card-header">
+      <span class="mentor-name">{{ item.name }}</span>
+      <span class="mentor-identity">{{ item.identity }}</span>
     </div>
+    <p class="mentor-achieve"><strong>核心视角：</strong>{{ item.achievement }}</p>
+    <div class="mentor-quote-box">
+      <span class="quote-mark">"</span>
+      <p class="quote-text">{{ item.quote }}</p>
+      <span class="quote-mark" style="text-align: right">"</span>
+    </div>
+  </div>
+</div>
 
     <button class="retry-btn" @click="gameState = 'welcome'">返回主页</button>
   </div>
