@@ -76,6 +76,7 @@ const handleSelect = (score) => {
 }
 </script>
 
+
 <template>
   <div class="container">
     
@@ -100,59 +101,70 @@ const handleSelect = (score) => {
           {{ opt.text }}
         </button>
       </div>
+      <button 
+        v-if="currentIndex > 0" 
+        class="prev-btn" 
+        @click="currentIndex--"
+      >
+        ← 返回上一题
+      </button>
     </div>
 
     <div v-else class="result-box">
-  <p>你的心理倾向代号是：</p>
-  <h1 class="type-code">{{ finalType }}</h1>
-
-  <div class="analysis-container">
-    <div v-for="item in dimensionAnalysis" :key="item.label" class="analysis-item">
-      <div class="label-row">
-        <span>{{ item.left }}</span>
-        <span>{{ item.label }}</span>
-        <span>{{ item.right }}</span>
+      
+      <div class="main-result">
+        <p class="type-tag">{{ currentResultData.dimension }}</p>
+        <h1 class="result-title">{{ currentResultData.title }}</h1>
+        <p class="main-desc">{{ currentResultData.desc }}</p>
       </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" :style="{ width: item.percent + '%' }"></div>
+
+      <div class="data-evidence">
+        <p class="code-intro">你的心理倾向代号是：</p>
+        <h1 class="type-code">{{ finalType }}</h1>
+
+        <div class="analysis-container">
+          <div v-for="item in dimensionAnalysis" :key="item.label" class="analysis-item">
+            <div class="label-row">
+              <span>{{ item.left }}</span>
+              <span>{{ item.label }}</span>
+              <span>{{ item.right }}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" :style="{ width: item.percent + '%' }"></div>
+            </div>
+            <div class="percent-row">
+              <span>{{ item.percent }}%</span>
+              <span>{{ (100 - item.percent).toFixed(1) }}%</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="percent-row">
-        <span>{{ item.percent }}%</span>
-        <span>{{ (100 - item.percent).toFixed(1) }}%</span>
+
+      <div class="mentor-box" v-if="currentResultData.mentorSection">
+        <p class="mentor-intro">{{ currentResultData.mentorSection.intro }}</p>
+        
+        <div v-for="item in currentResultData.mentorSection.mentors" :key="item.name" class="mentor-card">
+          <div class="card-header">
+            <span class="mentor-name">{{ item.name }}</span>
+            <span class="mentor-identity">{{ item.identity }}</span>
+          </div>
+          <p class="mentor-achieve"><strong>核心视角：</strong>{{ item.achievement }}</p>
+          <div class="mentor-quote-box">
+            <span class="quote-mark">"</span>
+            <p class="quote-text">{{ item.quote }}</p>
+            <span class="quote-mark" style="text-align: right">"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="retry-btn" @click="gameState = 'welcome'">返回主页</button>
       </div>
     </div>
-  </div>
-
-  <div class="result-container">
-    <div class="main-result">
-      <p class="type-tag">{{ currentResultData.dimension }}</p>
-      <h1>{{ currentResultData.title }}</h1>
-      <p class="main-desc">{{ currentResultData.desc }}</p>
-    </div>
-
-    <div class="mentor-box" v-if="currentResultData.mentorSection">
-  <p class="mentor-intro">{{ currentResultData.mentorSection.intro }}</p>
-  
-  <div v-for="item in currentResultData.mentorSection.mentors" :key="item.name" class="mentor-card">
-    <div class="card-header">
-      <span class="mentor-name">{{ item.name }}</span>
-      <span class="mentor-identity">{{ item.identity }}</span>
-    </div>
-    <p class="mentor-achieve"><strong>核心视角：</strong>{{ item.achievement }}</p>
-    <div class="mentor-quote-box">
-      <span class="quote-mark">"</span>
-      <p class="quote-text">{{ item.quote }}</p>
-      <span class="quote-mark" style="text-align: right">"</span>
-    </div>
-  </div>
-</div>
-
-    <button class="retry-btn" @click="gameState = 'welcome'">返回主页</button>
-  </div>
-</div>
 
   </div>
 </template>
+
 
 <style>
 /* 基础容器 */
@@ -198,18 +210,68 @@ const handleSelect = (score) => {
   color: #646cff;
 }
 
-/* 结果页样式 */
-.type-code { font-size: 4rem; color: #646cff; margin: 10px 0; }
-.result-desc { text-align: left; background: #fafafa; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-.retry-btn { border: 1px solid #ccc; background: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+/* --- 结果页核心布局 --- */
+.result-box {
+  text-align: center;
+  padding: 10px;
+}
+
+/* 顶部标题与描述 */
+.type-tag {
+  color: #646cff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.result-title {
+  font-size: 2.2rem;
+  color: #333;
+  margin: 10px 0 20px 0;
+  line-height: 1.2;
+}
+
+.main-desc {
+  text-align: left;
+  background: #fdfdfd;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 40px;
+  font-size: 1.05rem;
+}
+
+/* 中部数据与代号 */
+.data-evidence {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #fff;
+}
+
+.code-intro {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.type-code { 
+  font-size: 3rem; /* 稍微调小，配合新布局 */
+  color: #646cff; 
+  margin: 0 0 30px 0; 
+  letter-spacing: 4px;
+}
 
 .analysis-container {
-  margin: 30px 0;
+  margin: 20px 0;
   text-align: left;
 }
 
 .analysis-item {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .label-row {
@@ -217,14 +279,14 @@ const handleSelect = (score) => {
   justify-content: space-between;
   font-weight: bold;
   font-size: 0.9rem;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: #444;
 }
 
 .progress-bar-bg {
-  height: 12px;
-  background: #eee;
-  border-radius: 6px;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
   overflow: hidden;
   position: relative;
 }
@@ -232,73 +294,105 @@ const handleSelect = (score) => {
 .progress-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #646cff, #8a91ff);
-  transition: width 1s ease-out; /* 增加动画效果 */
+  transition: width 1s ease-out;
 }
 
 .percent-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
-  color: #888;
-  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 6px;
 }
 
-/* 导师区域容器 */
+/* 底部智者区域 */
 .mentor-box {
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #fcfaf2; /* 类似旧纸张的象牙色 */
-  border-radius: 12px;
+  margin-top: 40px;
+  padding: 25px 20px;
+  background-color: #fcfaf2; /* 纸张质感 */
+  border-radius: 16px;
   border: 1px solid #e0d8c3;
+  text-align: left;
 }
 
 .mentor-intro {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #8c7e6a;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
   text-align: center;
   font-style: italic;
+  font-weight: bold;
 }
 
-/* 导师卡片 */
 .mentor-card {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   border-bottom: 1px dashed #d1c7ad;
-  padding-bottom: 15px;
+  padding-bottom: 20px;
+}
+
+.mentor-card:last-child {
+  border-bottom: none;
 }
 
 .mentor-name {
   font-weight: bold;
-  font-size: 1.1rem;
-  color: #333;
+  font-size: 1.15rem;
+  color: #222;
 }
 
 .mentor-identity {
   font-size: 0.8rem;
-  background: #eee;
-  padding: 2px 6px;
-  margin-left: 8px;
+  background: #e9e5d7;
+  color: #7a6e5a;
+  padding: 2px 8px;
+  margin-left: 10px;
   border-radius: 4px;
 }
 
 .mentor-achieve {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.6;
-  color: #555;
-  margin: 10px 0;
+  color: #5d5446;
+  margin: 12px 0;
 }
 
-/* 名言样式 */
 .mentor-quote-box {
-  background: rgba(255, 255, 255, 0.5);
-  padding: 10px;
-  border-left: 3px solid #8c7e6a;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 15px;
+  border-left: 4px solid #8c7e6a;
+  border-radius: 0 8px 8px 0;
 }
 
 .quote-text {
-  font-family: "KaiTi", "STKaiti", serif; /* 尽量使用衬线体，显得有底蕴 */
+  font-family: "STKaiti", "KaiTi", serif;
   font-style: italic;
-  color: #444;
+  font-size: 1rem;
+  color: #3e3830;
+  margin: 0;
+  line-height: 1.5;
 }
+
+/* 操作按钮 */
+.result-actions {
+  margin-top: 40px;
+  padding-bottom: 40px;
+}
+
+.retry-btn { 
+  border: 1px solid #646cff; 
+  background: white; 
+  color: #646cff;
+  padding: 12px 30px; 
+  border-radius: 25px; 
+  cursor: pointer; 
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.retry-btn:hover {
+  background: #646cff;
+  color: white;
+}
+
 
 </style>
