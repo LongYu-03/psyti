@@ -25,18 +25,27 @@ var _hmt = _hmt || [];
 <div id="app"></div>
 
 <!-- ====================== -->
-<!-- 访问量 放在页面最底部 -->
+<!-- 访问量 只在首页显示 -->
 <!-- ====================== -->
 <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<div style="
+<div id="visitor-stat" style="
   width: 100%; 
   text-align: center; 
   padding: 15px 0; 
   font-size: 14px; 
   color: #888;
+  display: none; /* 默认隐藏 */
 ">
-  星界 <span id="busuanzi_value_site_pv"></span> 人 已抵达
+  第 <span id="busuanzi_value_site_pv"></span> 次回响，于此地
 </div>
+
+<!-- 控制只在首页显示 -->
+<script>
+// 只在首页（开始页面）显示访问量
+if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+  document.getElementById('visitor-stat').style.display = 'block';
+}
+</script>
 
 </body>
 </html>
